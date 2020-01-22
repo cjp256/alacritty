@@ -1,0 +1,11 @@
+#!/bin/sh
+
+unset SNAP
+unset XDG_CONFIG_HOME
+unset XDG_DATA_DIRS
+unset XDG_RUNTIME_DIR
+unset XDG_USER_DATA
+
+PATH=/snap/bin:$PATH
+
+exec "$@"

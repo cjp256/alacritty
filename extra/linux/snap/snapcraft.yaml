@@ -14,18 +14,71 @@ description: |
   a daily driver.
 icon: extra/logo/alacritty-term.svg
 grade: stable
+base: core18
 confinement: classic
+
 parts:
   alacritty:
     plugin: rust
     source: .
-    build-packages: [libfreetype6-dev, libfontconfig1-dev, cmake]
-  desktop:
-    plugin: dump
-    source: .
-    stage:
-      - extra/linux/alacritty.desktop
+    build-packages:
+      - cmake
+      - libfreetype6-dev
+      - libfontconfig1-dev
+      - libxcb-render0-dev
+      - libxcb-shape0-dev
+      - libxcb-xfixes0-dev
+      - libxcb1-dev
+      - libgl1-mesa-dev
+    override-build: |
+      snapcraftctl build
+      install -m 755 extra/linux/snap/alacritty.wrapper $SNAPCRAFT_PART_INSTALL/alacritty.wrapper
+      install -m 644 extra/linux/alacritty.desktop $SNAPCRAFT_PART_INSTALL/alacritty.desktop
+      install -m 644 extra/logo/alacritty-term.svg $SNAPCRAFT_PART_INSTALL/alacritty.svg
+      sed -i 's|Icon=.*|Icon=alacritty.svg|g' $SNAPCRAFT_PART_INSTALL/alacritty.desktop
+    stage-packages:
+      - libfontconfig1
+      - libfreetype6
+      - libpng16-16
+      - libxau6
+      - libxcursor1
+      - libxcb-render0
+      - libxcb-shape0
+      - libxcb-xfixes0
+      - libxcb1
+      - libxdmcp6
+      - libxi6
+      - libxrandr2
+
+  mesa:
+    plugin: nil
+    stage-packages:
+      - libgl1-mesa-dri
+      - libglx-mesa0
+    build-attributes:
+      - no-patchelf
+    prime:
+      - -lib/udev
+      - -usr/doc
+      - -usr/doc-base
+      - -usr/share/applications
+      - -usr/share/apport
+      - -usr/share/bug
+      - -usr/share/doc
+      - -usr/share/doc-base
+      - -usr/share/icons
+      - -usr/share/libdrm
+      - -usr/share/libwacom
+      - -usr/share/lintian
+      - -usr/share/man
+      - -usr/share/pkgconfig
+
 apps:
   alacritty:
-    command: env XDG_RUNTIME_DIR= XDG_CONFIG_HOME=$SNAP_USER_DATA XDG_DATA_DIRS=$SNAP_DATA PATH=$SNAP/bin:$PATH SNAP= alacritty
+    command: alacritty
+    command-chain: [alacritty.wrapper]
     desktop: alacritty.desktop
+
+environment:
+    __EGL_VENDOR_LIBRARY_DIRS: $SNAP/etc/glvnd/egl_vendor.d:$SNAP/usr/share/glvnd/egl_vendor.d
+    LIBGL_DRIVERS_PATH: $SNAP/usr/lib/x86_64-linux-gnu/dri
