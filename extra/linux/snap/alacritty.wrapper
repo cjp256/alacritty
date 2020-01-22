@@ -1,0 +1,12 @@
+#!/bin/sh
+
+alacritty="$SNAP/bin/alacritty"
+
+unset SNAP
+unset SNAP_INSTANCE_NAME
+unset SNAP_NAME
+unset XDG_CONFIG_HOME
+unset XDG_DATA_DIRS
+unset XDG_RUNTIME_DIR
+
+exec "$alacritty" "$@"
